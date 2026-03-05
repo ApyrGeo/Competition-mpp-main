@@ -1,0 +1,117 @@
+syntax="proto3";
+
+package competition.protocol;
+
+option csharp_namespace = "Competition.Network.Protobuff";
+
+option java_package = "comp.network.protobuff.protocol";
+option java_outer_classname = "CompetitionProtobufs";
+option java_multiple_files = true;
+
+message User {
+  int32 Id = 1;
+  string Name = 2;
+  string Password = 3;
+}
+
+message Kid{
+  int32 Id = 1;
+  string Name = 2;
+  string CNP = 3;
+}
+
+message Challenge{
+  enum AG {Group_6_8 = 0; Group_9_11 = 1; Group_12_15 = 2;}
+  enum CL {Length50 = 0; Length100 = 1; Length1000 = 2; Length1500 = 3;}
+
+  int32 Id = 1;
+  AG AgeGroup = 2;
+  CL ChallengeLength = 3;
+}
+
+message IntPair {
+  int32 first = 1;
+  int32 second = 2;
+}
+
+message Registration {
+  IntPair id = 1;
+
+  Challenge challenge = 2;
+  Kid kid = 3;
+}
+
+message Count {
+  string Name = 1;
+  int32 Count = 2;
+}
+
+
+
+
+message Request {
+  enum RequestType {
+    UNKNOWN = 0;
+    LOG_IN = 1;
+    GET_REGISTRATIONS = 2;
+    ADD_REGISTRATION = 3;
+    ADD_KID = 4;
+    GET_KID = 5;
+    GET_CHALLENGES = 6;
+    GET_NR_REG_KID = 7;
+    GET_REG_COUNTS = 8;
+    LOG_OUT = 9;
+  }
+
+  RequestType Type = 1;
+  User User = 2;
+  Registration Registration = 3;
+  repeated Registration Registrations = 4;
+  Kid Kid = 5;
+  string Name = 6;
+  string AgeGroup = 7;
+}
+
+message Response {
+  enum ResponseType {
+    UNKNOWN = 0;
+    OK = 1;
+    ERROR = 2;
+    UPDATE = 3;
+    GET_REGISTRATIONS = 4;
+    GET_KID = 5;
+    LOG_IN = 6;
+    GET_CHALLENGES = 7;
+    GET_NR_REGS = 8;
+    GET_REG_COUNTS = 9;
+    ADD_REGISTRATION = 10;
+    ADDED_REGISTRATION = 11;
+  }
+
+  int32 Count = 1;
+  ResponseType Type = 2;
+  string ErrorMessage = 3;
+
+  User User = 4;
+  Registration Registration = 5;
+  repeated Registration Registrations = 6;
+
+  repeated Challenge Challenges = 7;
+  Kid Kid = 8;
+  repeated Count Counts = 9;
+}
+
+service CompetitionService {
+  rpc Login(User) returns (Response);
+  rpc Logout(User) returns (Response);
+  rpc GetChallenges(Request) returns (Response);
+  rpc GetRegistrations(Request) returns (Response);
+  rpc GetRegistrationsCounts(Request) returns (Response);
+  rpc GetKid(Kid) returns (Response);
+  rpc AddKid(Kid) returns (Response);
+  rpc AddRegistration(Registration) returns (Response);
+  rpc GetNrRegistrations(Kid) returns (Response);
+
+  rpc SubscribeAddedRegistration(Request) returns (stream Response);
+
+}
